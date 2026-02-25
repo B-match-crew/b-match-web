@@ -29,6 +29,7 @@ b-match-web/
 │   │   ├── map/            # /map - 지도
 │   │   ├── my/             # /my - 마이페이지
 │   │   └── matching/[id]/  # /matching/:id - 매칭 상세
+│   ├── matching/create/     # /matching/create - 매칭 등록
 │   ├── onboarding/         # /onboarding - 온보딩
 │   ├── login/              # /login - 소셜 로그인
 │   ├── profile-setup/      # /profile-setup - 프로필 설정
@@ -38,7 +39,7 @@ b-match-web/
 │   ├── app/                # 전역 프로바이더, 설정
 │   ├── views/              # 페이지 수준 합성 컴포넌트
 │   ├── widgets/            # 대형 UI 블록 (AppBar, BottomNav 등)
-│   ├── features/           # 기능 단위 (로그인, 필터, 호스트 등록)
+│   ├── features/           # 기능 단위 (로그인, 필터, 호스트 등록, 매칭 등록)
 │   ├── entities/           # 도메인 모델 (User, Matching, Host)
 │   └── shared/             # 공통 UI(shadcn), 유틸, 설정, 훅
 │       └── ui/             # shadcn/ui 컴포넌트
@@ -74,15 +75,27 @@ b-match-web/
 | HOME-01 | 매칭 홈 | 매칭 리스트 (무한 스크롤) | UI 완료 / TODO: 리스트 API |
 | HOME-02 | 매칭 홈 | 필터 설정 | UI 완료 |
 | HOME-03 | 매칭 상세 | 매칭 상세 진입 | UI 완료 / TODO: 상세 API |
+| HOME-04 | 매칭 홈 | 매칭 만들기 버튼 (호스트 전용) | 완료 |
+| HOME-05 | 매칭 홈 | 매칭 등록 화면 진입 | 완료 |
+| POST-01 | 매칭 등록 | 일시 및 시간 선택 | UI 완료 |
+| POST-02 | 매칭 등록 | 장소 설정 | UI 완료 / TODO: 지도 API 연동 |
+| POST-03 | 매칭 등록 | 모집 인원 설정 (스테퍼/미정) | UI 완료 |
+| POST-04 | 매칭 등록 | 참가 자격 (성별/나이/급수/초보환영) | UI 완료 |
+| POST-05-1~4 | 매칭 등록 | 게스트비 (콕/현금/없음, 낱개구매) | UI 완료 |
+| POST-06-1~4 | 매칭 등록 | 모임 참가비 (콕/현금/없음, 낱개구매) | UI 완료 |
+| POST-07-1~3 | 매칭 등록 | 시설 이용료 (구장별도/모임입금) | UI 완료 |
 
-## TODO (외부 연동)
+## TODO (핵심 기능 - 외부 연동)
 
 - [ ] 소셜 로그인 SDK 연동 (카카오, Apple, Google)
 - [ ] Firebase 초기화 (Auth, Firestore, FCM)
 - [ ] API 서버 연동 (매칭 CRUD, 프로필 저장, 호스트 등록)
-- [ ] 지도 API 연동 (카카오맵 / 네이버 지도)
+- [ ] 지도 API 연동 (카카오맵 / 네이버 지도) - POST-02 장소 검색, NAV-02 지도 뷰
 - [ ] 토큰 검증 API 연동
 - [ ] 푸시 알림 (Firebase Cloud Messaging)
+- [ ] 매칭 등록 API 연동 (POST-01~07 폼 데이터 서버 전송)
+- [ ] 매칭 리스트 무한 스크롤 API 연동
+- [ ] 매칭 상세 데이터 API 연동
 
 ## 실행 방법
 

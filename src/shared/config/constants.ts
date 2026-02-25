@@ -25,3 +25,16 @@ export type SkillFilter = (typeof SKILL_FILTER_OPTIONS)[number];
 
 export const CLUB_NAME_MAX_LENGTH = 20;
 export const CLUB_NAME_PATTERN = /^[가-힣a-zA-Z0-9\s]+$/;
+
+// 매칭 등록 관련
+export const FEE_TYPES = ["콕 제출", "현금", "없음"] as const;
+export type FeeType = (typeof FEE_TYPES)[number];
+
+export const FACILITY_FEE_OPTIONS = ["있음", "없음"] as const;
+export type FacilityFeeOption = (typeof FACILITY_FEE_OPTIONS)[number];
+
+export const FACILITY_PAYMENT_METHODS = ["구장 별도 결제", "모임에 입금"] as const;
+export type FacilityPaymentMethod = (typeof FACILITY_PAYMENT_METHODS)[number];
+
+export const SKILL_CUTOFF_OPTIONS = ["S조 이상", "A조 이상", "B조 이상", "C조 이상", "D조 이상", "제한 없음"] as const;
+export type SkillCutoff = (typeof SKILL_CUTOFF_OPTIONS)[number];
