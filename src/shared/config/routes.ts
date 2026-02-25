@@ -7,5 +7,6 @@ export const ROUTES = {
   HOME: "/home",
   MAP: "/map",
   MY: "/my",
+  MATCHING_CREATE: "/matching/create",
   MATCHING_DETAIL: (id: string) => `/matching/${id}`,
 } as const;
