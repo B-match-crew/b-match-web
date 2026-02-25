@@ -26,6 +26,12 @@ export interface FacilityFeeSettings {
   amount: number;
 }
 
+export interface ShuttlecockSettings {
+  brand: string;
+  allowSinglePurchase: boolean;
+  pricePerKok: number;
+}
+
 export interface MatchingCreateForm {
   // POST-01: 일시 및 시간
   date: string;
@@ -52,4 +58,11 @@ export interface MatchingCreateForm {
   participationFee: FeeSettings;
   // POST-07: 시설 이용료
   facilityFee: FacilityFeeSettings;
+  // POST-08: 지정콕
+  shuttlecock: ShuttlecockSettings;
+  // POST-09: 모임 소개글
+  description: string;
+  // POST-10: 환불 마감 시간
+  refundDeadlineDate: string;
+  refundDeadlineTime: string;
 }
