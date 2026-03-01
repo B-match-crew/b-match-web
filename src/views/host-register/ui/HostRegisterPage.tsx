@@ -12,7 +12,7 @@ import {
 import { Input } from "@/src/shared/ui/input";
 import { Label } from "@/src/shared/ui/label";
 import { Button } from "@/src/shared/ui/button";
-import { Progress } from "@/src/shared/ui/progress";
+import { Separator } from "@/src/shared/ui/separator";
 import { useUserStore } from "@/src/entities/user";
 import { ROUTES } from "@/src/shared/config/routes";
 import {
@@ -25,8 +25,6 @@ import {
   type SkillLevel,
 } from "@/src/shared/config/constants";
 import { toast } from "sonner";
-
-const TOTAL_STEPS = 4;
 
 const initialAgeDistribution: Record<AgeGroup, AgeDistributionLevel> = {
   "20대": "없음",
@@ -41,45 +39,62 @@ const initialSkillCounts: Record<SkillLevel, number> = {
   S: 0, A: 0, B: 0, C: 0, D: 0, "초심": 0, "입문": 0,
 };
 
+interface FormErrors {
+  clubName?: string;
+  ageDistribution?: string;
+  skillCounts?: string;
+}
+
 export function HostRegisterPage() {
   const router = useRouter();
   const { setUser, user } = useUserStore();
-  const [step, setStep] = useState(1);
   const [showComplete, setShowComplete] = useState(false);
+  const [errors, setErrors] = useState<FormErrors>({});
 
   const [clubName, setClubName] = useState("");
   const [maleRatio, setMaleRatio] = useState(50);
   const [ageDistribution, setAgeDistribution] = useState(initialAgeDistribution);
   const [skillCounts, setSkillCounts] = useState(initialSkillCounts);
 
-  const isStepValid = () => {
-    switch (step) {
-      case 1:
-        return (
-          clubName.length > 0 &&
-          clubName.length <= CLUB_NAME_MAX_LENGTH &&
-          CLUB_NAME_PATTERN.test(clubName)
-        );
-      case 2:
-        return true;
-      case 3:
-        return AGE_GROUPS.some((g) => ageDistribution[g] !== "없음");
-      case 4:
-        return SKILL_LEVELS.some((l) => skillCounts[l] > 0);
-      default:
-        return false;
-    }
+  const scrollToSection = (name: string) => {
+    document
+      .querySelector(`[data-section="${name}"]`)
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
-  const handleNext = () => {
-    if (step < TOTAL_STEPS) {
-      setStep(step + 1);
-    } else {
-      handleSubmit();
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {};
+
+    if (clubName.length === 0) {
+      newErrors.clubName = "클럽/모임명을 입력해주세요";
+    } else if (clubName.length > CLUB_NAME_MAX_LENGTH) {
+      newErrors.clubName = `${CLUB_NAME_MAX_LENGTH}자 이내로 입력해주세요`;
+    } else if (!CLUB_NAME_PATTERN.test(clubName)) {
+      newErrors.clubName = "한글, 영문, 숫자만 입력 가능합니다";
     }
+
+    if (!AGE_GROUPS.some((g) => ageDistribution[g] !== "없음")) {
+      newErrors.ageDistribution = "최소 1개 연령대를 선택해주세요";
+    }
+
+    if (!SKILL_LEVELS.some((l) => skillCounts[l] > 0)) {
+      newErrors.skillCounts = "최소 1개 급수의 인원을 입력해주세요";
+    }
+
+    setErrors(newErrors);
+
+    const firstError = Object.keys(newErrors)[0];
+    if (firstError) {
+      scrollToSection(firstError);
+      return false;
+    }
+
+    return true;
   };
 
   const handleSubmit = () => {
+    if (!validateForm()) return;
+
     // TODO: [HOST-05] 호스트 정보 서버 저장 API 호출
     // - clubName, maleRatio, femaleRatio, ageDistribution, skillCounts 전송
     // - 해당 계정에 호스트 권한 부여
@@ -98,97 +113,113 @@ export function HostRegisterPage() {
 
   const handleAgeChange = (group: AgeGroup, level: AgeDistributionLevel) => {
     setAgeDistribution((prev) => ({ ...prev, [group]: level }));
+    if (errors.ageDistribution) {
+      setErrors((prev) => ({ ...prev, ageDistribution: undefined }));
+    }
   };
 
   const handleSkillChange = (level: SkillLevel, count: number) => {
     setSkillCounts((prev) => ({ ...prev, [level]: count }));
+    if (errors.skillCounts) {
+      setErrors((prev) => ({ ...prev, skillCounts: undefined }));
+    }
   };
 
   return (
     <div className="flex min-h-dvh flex-col">
       <AppBar title="호스트 정보 입력" showBack />
-      <div className="px-6 pt-4">
-        <div className="mb-1 flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">
-            {step} / {TOTAL_STEPS}
-          </span>
-        </div>
-        <Progress value={(step / TOTAL_STEPS) * 100} className="h-1.5" />
-      </div>
 
-      <div className="flex-1 px-6 py-6">
-        {step === 1 && (
-          <div className="space-y-4">
-            <h2 className="text-xl font-bold">클럽/모임명을 입력해주세요</h2>
-            <p className="text-sm text-muted-foreground">
-              한글, 영문, 숫자 포함 {CLUB_NAME_MAX_LENGTH}자 이내
-            </p>
-            <div className="space-y-2">
-              <Label htmlFor="clubName">클럽/모임명</Label>
-              <Input
-                id="clubName"
-                value={clubName}
-                onChange={(e) => setClubName(e.target.value)}
-                placeholder="예: 서울 배드민턴 클럽"
-                maxLength={CLUB_NAME_MAX_LENGTH}
-              />
-              <p className="text-right text-xs text-muted-foreground">
+      <div className="flex-1 overflow-y-auto px-6 py-6">
+        <section data-section="clubName" className="space-y-2">
+          <h3 className="text-lg font-semibold">클럽/모임명</h3>
+          <p className="text-sm text-muted-foreground">
+            한글, 영문, 숫자 포함 {CLUB_NAME_MAX_LENGTH}자 이내
+          </p>
+          <div className="space-y-2 pt-2">
+            <Label htmlFor="clubName">클럽/모임명</Label>
+            <Input
+              id="clubName"
+              value={clubName}
+              onChange={(e) => {
+                setClubName(e.target.value);
+                if (errors.clubName) {
+                  setErrors((prev) => ({ ...prev, clubName: undefined }));
+                }
+              }}
+              placeholder="예: 서울 배드민턴 클럽"
+              maxLength={CLUB_NAME_MAX_LENGTH}
+              className={errors.clubName ? "border-destructive" : ""}
+            />
+            <div className="flex justify-between text-xs">
+              <span className="text-muted-foreground">
                 {clubName.length}/{CLUB_NAME_MAX_LENGTH}
-              </p>
+              </span>
+              {errors.clubName && (
+                <span className="text-destructive">{errors.clubName}</span>
+              )}
             </div>
           </div>
-        )}
+        </section>
 
-        {step === 2 && (
-          <div className="space-y-4">
-            <h2 className="text-xl font-bold">성비 분포를 설정해주세요</h2>
-            <p className="text-sm text-muted-foreground">
-              슬라이더를 조절하여 남녀 비율을 설정하세요
-            </p>
-            <div className="pt-4">
-              <GenderRatioSlider
-                maleRatio={maleRatio}
-                onChange={setMaleRatio}
-              />
-            </div>
+        <Separator className="my-6" />
+
+        <section data-section="maleRatio" className="space-y-2">
+          <h3 className="text-lg font-semibold">성비 분포</h3>
+          <p className="text-sm text-muted-foreground">
+            슬라이더를 조절하여 남녀 비율을 설정하세요
+          </p>
+          <div className="pt-2">
+            <GenderRatioSlider
+              maleRatio={maleRatio}
+              onChange={setMaleRatio}
+            />
           </div>
-        )}
+        </section>
 
-        {step === 3 && (
-          <div className="space-y-4">
-            <h2 className="text-xl font-bold">연령 분포를 선택해주세요</h2>
-            <p className="text-sm text-muted-foreground">
-              각 연령대별로 인원 분포를 선택하세요
-            </p>
+        <Separator className="my-6" />
+
+        <section data-section="ageDistribution" className="space-y-2">
+          <h3 className="text-lg font-semibold">연령 분포</h3>
+          <p className="text-sm text-muted-foreground">
+            각 연령대별로 인원 분포를 선택하세요
+          </p>
+          <div className="pt-2">
             <AgeDistributionChips
               distribution={ageDistribution}
               onChange={handleAgeChange}
             />
           </div>
-        )}
+          {errors.ageDistribution && (
+            <p className="text-xs text-destructive">{errors.ageDistribution}</p>
+          )}
+        </section>
 
-        {step === 4 && (
-          <div className="space-y-4">
-            <h2 className="text-xl font-bold">급수별 인원을 입력해주세요</h2>
-            <p className="text-sm text-muted-foreground">
-              각 급수별 대략적인 인원을 입력하세요
-            </p>
+        <Separator className="my-6" />
+
+        <section data-section="skillCounts" className="space-y-2">
+          <h3 className="text-lg font-semibold">급수별 인원</h3>
+          <p className="text-sm text-muted-foreground">
+            각 급수별 대략적인 인원을 입력하세요
+          </p>
+          <div className="pt-2">
             <SkillCountInput
               counts={skillCounts}
               onChange={handleSkillChange}
             />
           </div>
-        )}
+          {errors.skillCounts && (
+            <p className="text-xs text-destructive">{errors.skillCounts}</p>
+          )}
+        </section>
       </div>
 
-      <div className="px-6 pb-8">
+      <div className="sticky bottom-0 border-t bg-background px-6 py-4">
         <Button
-          onClick={handleNext}
-          disabled={!isStepValid()}
+          onClick={handleSubmit}
           className="w-full py-6 text-base font-semibold"
           size="lg"
         >
-          {step < TOTAL_STEPS ? "다음" : "입력 완료"}
+          입력 완료
         </Button>
       </div>
 
