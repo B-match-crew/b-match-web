@@ -4,6 +4,10 @@ import { AppBar } from "@/src/widgets/app-bar";
 import { Button } from "@/src/shared/ui/button";
 import { Badge } from "@/src/shared/ui/badge";
 import { Separator } from "@/src/shared/ui/separator";
+import {
+  LoginRequiredDialog,
+  useAuthGuard,
+} from "@/src/features/auth/login-required-dialog";
 import { MapPin, Clock, Users, Wallet } from "lucide-react";
 import type { Matching } from "@/src/entities/matching";
 
@@ -29,6 +33,15 @@ interface MatchingDetailPageProps {
 
 export function MatchingDetailPage({ matchingId }: MatchingDetailPageProps) {
   const matching = MOCK_DETAIL;
+  const { showLoginDialog, setShowLoginDialog, requireAuth } = useAuthGuard();
+  const isFull = matching.currentMembers >= matching.maxMembers;
+
+  const handleApply = () => {
+    requireAuth(() => {
+      // TODO: 참여 신청 API 호출
+      console.log("참여 신청:", matchingId);
+    });
+  };
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -119,13 +132,17 @@ export function MatchingDetailPage({ matchingId }: MatchingDetailPageProps) {
         <Button
           className="w-full py-6 text-base font-semibold"
           size="lg"
-          disabled={matching.currentMembers >= matching.maxMembers}
+          disabled={isFull}
+          onClick={handleApply}
         >
-          {matching.currentMembers >= matching.maxMembers
-            ? "마감되었습니다"
-            : "참여 신청하기"}
+          {isFull ? "마감되었습니다" : "참여 신청하기"}
         </Button>
       </div>
+
+      <LoginRequiredDialog
+        open={showLoginDialog}
+        onOpenChange={setShowLoginDialog}
+      />
     </div>
   );
 }
