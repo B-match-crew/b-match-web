@@ -31,7 +31,7 @@ interface MatchingPreviewProps {
   description: string;
   refundDeadlineDate: string;
   refundDeadlineTime: string;
-  onEditStep: (step: number) => void;
+  onEditStep?: (step: number) => void;
 }
 
 function SectionHeader({
@@ -41,19 +41,21 @@ function SectionHeader({
 }: {
   title: string;
   step: number;
-  onEdit: (step: number) => void;
+  onEdit?: (step: number) => void;
 }) {
   return (
     <div className="flex items-center justify-between">
       <h3 className="text-sm font-semibold">{title}</h3>
-      <button
-        type="button"
-        onClick={() => onEdit(step)}
-        className="flex items-center gap-1 text-xs text-primary hover:underline"
-      >
-        <Pencil className="h-3 w-3" />
-        수정
-      </button>
+      {onEdit && (
+        <button
+          type="button"
+          onClick={() => onEdit(step)}
+          className="flex items-center gap-1 text-xs text-primary hover:underline"
+        >
+          <Pencil className="h-3 w-3" />
+          수정
+        </button>
+      )}
     </div>
   );
 }
