@@ -1,22 +1,34 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/src/shared/ui/button";
 import { Avatar, AvatarFallback } from "@/src/shared/ui/avatar";
+import { Button } from "@/src/shared/ui/button";
 import { Separator } from "@/src/shared/ui/separator";
 import { useUserStore } from "@/src/entities/user";
+import { LoginRequiredDialog } from "@/src/features/auth/login-required-dialog";
 import { ROUTES } from "@/src/shared/config/routes";
-import { ChevronRight, LogOut, Shield } from "lucide-react";
+import { ChevronRight, LogIn, LogOut, Shield } from "lucide-react";
 
 export default function MyPage() {
   const router = useRouter();
   const { user, isHost, isAuthenticated, logout } = useUserStore();
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
 
   if (!isAuthenticated) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8">
-        <p className="text-sm text-muted-foreground">로그인이 필요합니다</p>
-        <Button onClick={() => router.push(ROUTES.LOGIN)}>로그인하기</Button>
+        <p className="text-sm text-muted-foreground">
+          로그인하고 더 많은 기능을 이용해보세요
+        </p>
+        <Button onClick={() => setShowLoginDialog(true)}>
+          <LogIn className="mr-2 h-4 w-4" />
+          로그인하기
+        </Button>
+        <LoginRequiredDialog
+          open={showLoginDialog}
+          onOpenChange={setShowLoginDialog}
+        />
       </div>
     );
   }
